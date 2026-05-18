@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 — 마음정원 피어나는 뜰</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;700&family=Noto+Sans+KR:wght@300;400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --gd:#2a4a2a;--gm:#4a7c4a;--gl:#a8c8a8;--gp:#e8f4e8;
+  --gold:#c8960a;--goldf:#f0e8c8;--cream:#f7f5f0;
+  --td:#1a1a1a;--tm:#444;--tl:#777;
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--td);min-height:100vh;}
+
+/* 이미지 미리보기 */
+.img-upload-wrap{margin-bottom:18px;}
+.img-upload-label{display:inline-block;padding:10px 20px;background:var(--gp);border:1.5px dashed rgba(42,74,42,.3);border-radius:8px;font-size:13px;color:var(--gd);cursor:pointer;transition:all .2s;letter-spacing:.04em;}
+.img-upload-label:hover{background:var(--gl);border-color:var(--gm);}
+.img-preview{margin-top:10px;max-width:100%;max-height:200px;border-radius:8px;display:none;border:1px solid rgba(42,74,42,.1);}
+.img-remove{display:none;margin-top:6px;background:none;border:1px solid rgba(192,57,43,.2);color:#c0392b;padding:5px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+
+.doc-name{font-size:13px;color:var(--gd);margin-left:10px;font-weight:500;}
+
+/* 로그인 */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-box{background:#fff;border-radius:20px;padding:52px 44px;width:100%;max-width:400px;border:1px solid rgba(42,74,42,.08);box-shadow:0 20px 60px rgba(42,74,42,.08);text-align:center;}
+.login-logo{width:64px;height:64px;margin:0 auto 20px;}
+.login-title{font-family:'Noto Serif KR',serif;font-size:22px;color:var(--gd);margin-bottom:6px;font-weight:500;}
+.login-sub{font-size:12px;color:var(--tl);letter-spacing:.06em;margin-bottom:32px;}
+.login-input{width:100%;padding:14px 18px;border:1.5px solid rgba(42,74,42,.15);border-radius:10px;font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--td);outline:none;transition:border .2s;margin-bottom:12px;}
+.login-input:focus{border-color:var(--gm);}
+.login-btn{width:100%;padding:14px;background:var(--gd);color:#fff;border:none;border-radius:10px;font-size:14px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;letter-spacing:.06em;transition:background .2s;}
+.login-btn:hover{background:var(--gm);}
+.login-err{color:#c0392b;font-size:12px;margin-top:10px;}
+
+/* 관리자 레이아웃 */
+.admin-wrap{display:none;min-height:100vh;}
+.sidebar{width:240px;background:var(--gd);position:fixed;top:0;left:0;bottom:0;padding:32px 0;overflow-y:auto;}
+.sb-logo{padding:0 24px 28px;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-logo-name{font-family:'Noto Serif KR',serif;font-size:15px;color:#fff;margin-bottom:2px;}
+.sb-logo-sub{font-size:11px;color:var(--gl);letter-spacing:.06em;}
+.sb-menu{padding:20px 0;}
+.sb-label{font-size:10px;letter-spacing:.18em;color:rgba(168,200,168,.5);padding:0 24px;margin-bottom:8px;margin-top:20px;}
+.sb-btn{display:block;width:100%;padding:12px 24px;background:none;border:none;text-align:left;font-size:13px;color:rgba(255,255,255,.75);cursor:pointer;font-family:'Noto Sans KR',sans-serif;letter-spacing:.04em;transition:all .15s;}
+.sb-btn:hover{background:rgba(255,255,255,.08);color:#fff;}
+.sb-btn.active{background:rgba(255,255,255,.12);color:#fff;font-weight:500;}
+.sb-logout{margin-top:auto;padding:24px 24px 0;border-top:1px solid rgba(255,255,255,.08);margin-top:32px;}
+.logout-btn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);padding:8px 16px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
+.logout-btn:hover{background:rgba(255,255,255,.1);color:#fff;}
+
+.content{margin-left:240px;padding:40px 48px;min-height:100vh;}
+.content-header{margin-bottom:32px;}
+.content-title{font-family:'Noto Serif KR',serif;font-size:24px;color:var(--gd);font-weight:500;margin-bottom:6px;}
+.content-sub{font-size:13px;color:var(--tl);}
+
+/* 글쓰기 폼 */
+.write-form{background:#fff;border-radius:16px;border:1px solid rgba(42,74,42,.08);padding:36px 40px;margin-bottom:40px;}
+.form-row{margin-bottom:18px;}
+.form-label{font-size:12px;color:var(--gd);letter-spacing:.08em;font-weight:500;margin-bottom:8px;display:block;}
+.form-input{width:100%;padding:12px 16px;border:1.5px solid rgba(42,74,42,.15);border-radius:8px;font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--td);outline:none;transition:border .2s;}
+.form-input:focus{border-color:var(--gm);}
+.form-textarea{width:100%;padding:14px 16px;border:1.5px solid rgba(42,74,42,.15);border-radius:8px;font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--td);resize:vertical;min-height:220px;outline:none;transition:border .2s;line-height:1.9;}
+.form-textarea:focus{border-color:var(--gm);}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;}
+.btn-primary{background:var(--gd);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;letter-spacing:.04em;transition:background .2s;}
+.btn-primary:hover{background:var(--gm);}
+.btn-cancel{background:none;border:1.5px solid rgba(42,74,42,.2);color:var(--gd);padding:12px 22px;border-radius:10px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
+.btn-cancel:hover{background:var(--gp);}
+
+/* 목록 */
+.posts-section{background:#fff;border-radius:16px;border:1px solid rgba(42,74,42,.08);overflow:hidden;}
+.posts-header{padding:20px 28px;border-bottom:1px solid rgba(42,74,42,.06);display:flex;align-items:center;justify-content:space-between;}
+.posts-header-title{font-size:14px;font-weight:500;color:var(--gd);}
+.post-count{font-size:12px;color:var(--tl);}
+.admin-post-item{display:flex;align-items:center;gap:14px;padding:18px 28px;border-bottom:1px solid rgba(42,74,42,.05);}
+.admin-post-item:last-child{border-bottom:none;}
+.apost-title{flex:1;font-size:14px;color:var(--td);}
+.apost-date{font-size:11px;color:var(--tl);white-space:nowrap;}
+.apost-actions{display:flex;gap:6px;flex-shrink:0;}
+.btn-edit{background:var(--goldf);border:1px solid rgba(200,150,10,.2);color:var(--gold);padding:5px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
+.btn-edit:hover{background:var(--gold);color:#fff;}
+.btn-del{background:#fff;border:1px solid rgba(192,57,43,.2);color:#c0392b;padding:5px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
+.btn-del:hover{background:#c0392b;color:#fff;}
+.admin-empty{text-align:center;padding:48px;color:var(--tl);font-size:13px;letter-spacing:.05em;}
+
+.panel{display:none;animation:fu .3s ease both;}
+.panel.active{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+.msg{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none;}
+.msg.ok{background:#e8f4e8;color:var(--gd);border:1px solid rgba(42,74,42,.15);}
+.msg.err{background:#fdecea;color:#c0392b;border:1px solid rgba(192,57,43,.15);}
+
+@media(max-width:768px){
+  .sidebar{width:200px;}
+  .content{margin-left:200px;padding:24px 20px;}
+  .write-form{padding:24px 20px;}
+}
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 90 90" fill="none" width="64" height="64">
+        <path d="M55 15 C30 15 18 32 18 52 C18 70 32 80 52 78 C35 72 26 58 26 45 C26 28 38 18 55 15Z" stroke="#2a4a2a" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="48" y1="78" x2="48" y2="58" stroke="#2a4a2a" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M48 70 C42 65 36 67 34 72 C40 72 45 71 48 70Z" fill="#2a4a2a"/>
+        <path d="M48 65 C54 60 60 62 62 67 C56 67 51 66 48 65Z" fill="#2a4a2a"/>
+        <circle cx="48" cy="46" r="12" fill="#f0c020" opacity="0.9"/>
+        <circle cx="48" cy="46" r="6" fill="#e8a800"/>
+      </svg>
+    </div>
+    <h1 class="login-title">마음정원 관리자</h1>
+    <p class="login-sub">관리자만 접근할 수 있는 페이지입니다</p>
+    <input class="login-input" type="password" id="pwdInput" placeholder="관리자 비밀번호" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+    <p class="login-err" id="loginErr"></p>
+  </div>
+</div>
+
+<!-- 관리자 -->
+<div class="admin-wrap" id="adminWrap">
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-name">마음정원 피어나는 뜰</div>
+      <div class="sb-logo-sub">관리자 페이지</div>
+    </div>
+    <div class="sb-menu">
+      <p class="sb-label">게시판 관리</p>
+      <button class="sb-btn active" onclick="switchPanel('notices')">📋 공지사항</button>
+      <button class="sb-btn" onclick="switchPanel('stories')">🌱 피어나는 이야기</button>
+      <button class="sb-btn" onclick="switchPanel('activities')">📸 찰칵기록</button>
+      <button class="sb-btn" onclick="switchPanel('timeline')">🌱 연혁 타임라인</button>
+      <p class="sb-label">바로가기</p>
+      <button class="sb-btn" onclick="window.open('board.html','_blank')">🌐 게시판 보기</button>
+      <button class="sb-btn" onclick="window.open('index.html','_blank')">🏠 홈페이지 보기</button>
+    </div>
+    <div class="sb-logout">
+      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- 공지사항 패널 -->
+    <div class="panel active" id="panel-notices">
+      <div class="content-header">
+        <h2 class="content-title">공지사항</h2>
+        <p class="content-sub">공지사항을 작성하고 관리해요</p>
+      </div>
+      <div id="msg-notices" class="msg"></div>
+      <div class="write-form">
+        <div class="form-row">
+          <label class="form-label">제목</label>
+          <input class="form-input" id="ntitle" placeholder="공지사항 제목을 입력하세요">
+        </div>
+        <div class="form-row">
+          <label class="form-label">내용</label>
+          <textarea class="form-textarea" id="ncontent" placeholder="공지사항 내용을 입력하세요"></textarea>
+        </div>
+        <div class="form-row img-upload-wrap">
+          <label class="form-label">사진 첨부 (최대 5장)</label>
+          <label class="img-upload-label" for="nimg">📷 사진 선택</label>
+          <input type="file" id="nimg" accept="image/*" multiple style="display:none" onchange="previewImgs(this,'npreview-wrap')">
+          <div id="npreview-wrap" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+        </div>
+        <div class="form-row img-upload-wrap">
+          <label class="form-label">문서 첨부 (최대 5개) — PDF, 워드, 한글 등</label>
+          <label class="img-upload-label" for="ndoc">📎 문서 선택</label>
+          <input type="file" id="ndoc" accept=".pdf,.doc,.docx,.hwp,.hwpx,.xls,.xlsx,.ppt,.pptx,.txt" multiple style="display:none" onchange="previewDocs(this,'ndoc-wrap')">
+          <div id="ndoc-wrap" style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="clearForm('n')">초기화</button>
+          <button class="btn-primary" onclick="savePost('notices')">공지 등록</button>
+        </div>
+      </div>
+      <div class="posts-section">
+        <div class="posts-header">
+          <span class="posts-header-title">등록된 공지사항</span>
+          <span class="post-count" id="ncount"></span>
+        </div>
+        <div id="nlist"></div>
+      </div>
+    </div>
+
+    <!-- 피어나는 이야기 패널 -->
+    <div class="panel" id="panel-stories">
+      <div class="content-header">
+        <h2 class="content-title">피어나는 이야기 🌱</h2>
+        <p class="content-sub">따뜻한 이야기를 나눠요</p>
+      </div>
+      <div id="msg-stories" class="msg"></div>
+      <div class="write-form">
+        <div class="form-row">
+          <label class="form-label">제목</label>
+          <input class="form-input" id="stitle" placeholder="이야기 제목을 입력하세요">
+        </div>
+        <div class="form-row">
+          <label class="form-label">내용</label>
+          <textarea class="form-textarea" id="scontent" placeholder="피어나는 이야기를 써주세요"></textarea>
+        </div>
+        <div class="form-row img-upload-wrap">
+          <label class="form-label">사진 첨부 (최대 5장)</label>
+          <label class="img-upload-label" for="simg">📷 사진 선택</label>
+          <input type="file" id="simg" accept="image/*" multiple style="display:none" onchange="previewImgs(this,'spreview-wrap')">
+          <div id="spreview-wrap" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+        </div>
+        <div class="form-row img-upload-wrap">
+          <label class="form-label">문서 첨부 (최대 5개) — PDF, 워드, 한글 등</label>
+          <label class="img-upload-label" for="sdoc">📎 문서 선택</label>
+          <input type="file" id="sdoc" accept=".pdf,.doc,.docx,.hwp,.hwpx,.xls,.xlsx,.ppt,.pptx,.txt" multiple style="display:none" onchange="previewDocs(this,'sdoc-wrap')">
+          <div id="sdoc-wrap" style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="clearForm('s')">초기화</button>
+          <button class="btn-primary" onclick="savePost('stories')">이야기 등록</button>
+        </div>
+      </div>
+      <div class="posts-section">
+        <div class="posts-header">
+          <span class="posts-header-title">등록된 이야기</span>
+          <span class="post-count" id="scount"></span>
+        </div>
+        <div id="slist"></div>
+      </div>
+    </div>
+
+    <!-- 활동기록 패널 -->
+    <div class="panel" id="panel-activities">
+      <div class="content-header">
+        <h2 class="content-title">찰칵기록 📸</h2>
+        <p class="content-sub">피어나는 순간을 기록해요</p>
+      </div>
+      <div id="msg-activities" class="msg"></div>
+      <div class="write-form">
+        <div class="form-row">
+          <label class="form-label">제목</label>
+          <input class="form-input" id="atitle" placeholder="활동 제목을 입력하세요">
+        </div>
+        <div class="form-row">
+          <label class="form-label">활동 날짜</label>
+          <input class="form-input" id="adate" type="date">
+        </div>
+        <div class="form-row">
+          <label class="form-label">내용</label>
+          <textarea class="form-textarea" id="acontent" placeholder="활동 내용을 상세히 기록해주세요"></textarea>
+        </div>
+        <div class="form-row img-upload-wrap">
+          <label class="form-label">사진 첨부 (최대 5장)</label>
+          <label class="img-upload-label" for="aimg">📷 사진 선택</label>
+          <input type="file" id="aimg" accept="image/*" multiple style="display:none" onchange="previewImgs(this,'apreview-wrap')">
+          <div id="apreview-wrap" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+        </div>
+        <div class="form-row img-upload-wrap">
+          <label class="form-label">문서 첨부 (최대 5개) — PDF, 워드, 한글 등</label>
+          <label class="img-upload-label" for="adoc">📎 문서 선택</label>
+          <input type="file" id="adoc" accept=".pdf,.doc,.docx,.hwp,.hwpx,.xls,.xlsx,.ppt,.pptx,.txt" multiple style="display:none" onchange="previewDocs(this,'adoc-wrap')">
+          <div id="adoc-wrap" style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="clearForm('a')">초기화</button>
+          <button class="btn-primary" onclick="savePost('activities')">활동 등록</button>
+        </div>
+      </div>
+      <div class="posts-section">
+        <div class="posts-header">
+          <span class="posts-header-title">등록된 활동 기록</span>
+          <span class="post-count" id="acount"></span>
+        </div>
+        <div id="alist"></div>
+      </div>
+    </div>
+
+    <!-- 타임라인 패널 -->
+    <div class="panel" id="panel-timeline">
+      <div class="content-header">
+        <h2 class="content-title">연혁 타임라인 🌱</h2>
+        <p class="content-sub">마음정원 피어나는 뜰의 발자취를 기록해요</p>
+      </div>
+      <div id="msg-timeline" class="msg"></div>
+      <div class="write-form">
+        <div class="form-row" style="display:flex;gap:12px;">
+          <div style="flex:1;">
+            <label class="form-label">연도</label>
+            <input class="form-input" id="tyear" placeholder="예: 2024">
+          </div>
+          <div style="flex:1;">
+            <label class="form-label">월 (선택)</label>
+            <input class="form-input" id="tmonth" placeholder="예: 3">
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">제목</label>
+          <input class="form-input" id="ttitle" placeholder="예: 마음정원 피어나는 뜰 설립">
+        </div>
+        <div class="form-row">
+          <label class="form-label">내용 (선택)</label>
+          <textarea class="form-textarea" id="tcontent" placeholder="상세 내용을 입력하세요" style="min-height:100px;"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="clearTimeline()">초기화</button>
+          <button class="btn-primary" id="tbtn" onclick="saveTimeline()">연혁 등록</button>
+        </div>
+      </div>
+      <div class="posts-section">
+        <div class="posts-header">
+          <span class="posts-header-title">등록된 연혁</span>
+          <span class="post-count" id="tcount"></span>
+        </div>
+        <div id="tlist"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://rdirsepiikqqdwdwxdpt.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_GIdU1vgBGxfhJh9GIm3-NA_wggSHDQn';
+const ADMIN_PWD = '**##khn1502';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// 로그인
+function doLogin() {
+  const val = document.getElementById('pwdInput').value;
+  if (val === ADMIN_PWD) {
+    sessionStorage.setItem('mgAdmin', '1');
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('adminWrap').style.display = 'flex';
+    loadList('notices');
+  } else {
+    document.getElementById('loginErr').textContent = '비밀번호가 일치하지 않아요.';
+  }
+}
+function doLogout() {
+  sessionStorage.removeItem('mgAdmin');
+  location.reload();
+}
+if (sessionStorage.getItem('mgAdmin') === '1') {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('adminWrap').style.display = 'flex';
+  loadList('notices');
+}
+
+// 패널 전환
+function switchPanel(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  document.querySelectorAll('.sb-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['notices','stories','activities','timeline'].indexOf(tab) === i);
+  });
+  if (tab === 'timeline') loadTimeline();
+  else loadList(tab);
+}
+
+// 목록 로드
+async function loadList(tab) {
+  const tableMap = {notices:'notices', stories:'stories', activities:'activities'};
+  const listMap  = {notices:'nlist', stories:'slist', activities:'alist'};
+  const countMap = {notices:'ncount', stories:'scount', activities:'acount'};
+  const { data, error } = await sb.from(tableMap[tab]).select('*').order('created_at', {ascending:false});
+  const listEl = document.getElementById(listMap[tab]);
+  const countEl = document.getElementById(countMap[tab]);
+  if (!data || data.length === 0) {
+    listEl.innerHTML = '<div class="admin-empty">등록된 글이 없어요</div>';
+    countEl.textContent = '0건';
+    return;
+  }
+  countEl.textContent = data.length+'건';
+  listEl.innerHTML = data.map(p => `
+    <div class="admin-post-item">
+      <span class="apost-title">${escHtml(p.title)}</span>
+      <span class="apost-date">${fmtDate(p.created_at)}</span>
+      <div class="apost-actions">
+        <button class="btn-edit" onclick="editPost('${tab}', ${p.id})">수정</button>
+        <button class="btn-del" onclick="deletePost('${tab}', ${p.id})">삭제</button>
+      </div>
+    </div>`).join('');
+}
+
+// 이미지 미리보기
+function previewImg(input, previewId, removeId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById(previewId);
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById(removeId).style.display = 'inline-block';
+  };
+  reader.readAsDataURL(file);
+}
+function removeImg(inputId, previewId, removeId) {
+  document.getElementById(inputId).value = '';
+  const img = document.getElementById(previewId);
+  img.src = '';
+  img.style.display = 'none';
+  document.getElementById(removeId).style.display = 'none';
+}
+
+function previewDoc(input, nameId, removeId) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById(nameId).textContent = '📎 ' + file.name;
+  document.getElementById(removeId).style.display = 'inline-block';
+}
+function removeDoc(inputId, nameId, removeId) {
+  document.getElementById(inputId).value = '';
+  document.getElementById(nameId).textContent = '';
+  document.getElementById(removeId).style.display = 'none';
+}
+
+// 사진 미리보기 (다중)
+function previewImgs(input, wrapId) {
+  const wrap = document.getElementById(wrapId);
+  wrap.innerHTML = '';
+  Array.from(input.files).slice(0,5).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid rgba(42,74,42,.15);';
+      wrap.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function previewDocs(input, wrapId) {
+  const wrap = document.getElementById(wrapId);
+  wrap.innerHTML = '';
+  Array.from(input.files).slice(0,5).forEach(file => {
+    const div = document.createElement('div');
+    div.style.cssText = 'font-size:13px;color:var(--gd);';
+    div.textContent = '📎 ' + file.name;
+    wrap.appendChild(div);
+  });
+}
+
+// 이미지 업로드 (다중)
+async function uploadImgs(files) {
+  const urls = [];
+  for (const file of Array.from(files).slice(0,5)) {
+    const ext = file.name.split('.').pop();
+    const filename = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await sb.storage.from('images').upload(filename, file, {upsert:true});
+    if (!error) {
+      const { data: urlData } = sb.storage.from('images').getPublicUrl(filename);
+      urls.push(urlData.publicUrl);
+    }
+  }
+  return urls;
+}
+async function uploadDocs(files) {
+  const urls = [], names = [];
+  for (const file of Array.from(files).slice(0,5)) {
+    const ext = file.name.split('.').pop();
+    const filename = `docs/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await sb.storage.from('images').upload(filename, file, {upsert:true});
+    if (!error) {
+      const { data: urlData } = sb.storage.from('images').getPublicUrl(filename);
+      urls.push(urlData.publicUrl);
+      names.push(file.name);
+    }
+  }
+  return { urls, names };
+}
+
+// 글 저장 (등록/수정)
+let editingId = {notices:null, stories:null, activities:null};
+
+async function savePost(tab) {
+  const map = {
+    notices:    {title:'ntitle', content:'ncontent', extra:null,    img:'nimg', doc:'ndoc'},
+    stories:    {title:'stitle', content:'scontent', extra:null,    img:'simg', doc:'sdoc'},
+    activities: {title:'atitle', content:'acontent', extra:'adate', img:'aimg', doc:'adoc'}
+  };
+  const cfg = map[tab];
+  const title = document.getElementById(cfg.title).value.trim();
+  const content = document.getElementById(cfg.content).value.trim();
+  if (!title) { showMsg(tab, '제목을 입력해주세요.', false); return; }
+  if (!content) { showMsg(tab, '내용을 입력해주세요.', false); return; }
+
+  const imgFiles = document.getElementById(cfg.img).files;
+  let imageUrls = [];
+  if (imgFiles && imgFiles.length > 0) {
+    showMsg(tab, '🌿 사진 업로드 중...', true);
+    imageUrls = await uploadImgs(imgFiles);
+  }
+
+  const docFiles = document.getElementById(cfg.doc).files;
+  let docUrls = [], docNames = [];
+  if (docFiles && docFiles.length > 0) {
+    showMsg(tab, '🌿 문서 업로드 중...', true);
+    const result = await uploadDocs(docFiles);
+    docUrls = result.urls;
+    docNames = result.names;
+  }
+
+  const payload = {title, content};
+  if (imageUrls.length > 0) payload.image_urls = imageUrls;
+  if (docUrls.length > 0) { payload.doc_urls = docUrls; payload.doc_names = docNames; }
+  if (cfg.extra) {
+    const d = document.getElementById(cfg.extra).value;
+    if (d) payload.activity_date = d;
+  }
+
+  let error;
+  if (editingId[tab]) {
+    payload.updated_at = new Date().toISOString();
+    ({ error } = await sb.from(tab).update(payload).eq('id', editingId[tab]));
+    if (!error) { showMsg(tab, '✅ 수정되었어요!', true); editingId[tab] = null; }
+  } else {
+    ({ error } = await sb.from(tab).insert(payload));
+    if (!error) showMsg(tab, '✅ 등록되었어요!', true);
+  }
+  if (error) { showMsg(tab, '오류가 발생했어요: '+error.message, false); return; }
+
+  // 폼 초기화 및 버튼 복원
+  const prefMap = {notices:'n', stories:'s', activities:'a'};
+  clearForm(prefMap[tab]);
+  document.querySelector(`#panel-${tab} .btn-primary`).textContent =
+    {notices:'공지 등록', stories:'이야기 등록', activities:'활동 등록'}[tab];
+  loadList(tab);
+}
+
+async function editPost(tab, id) {
+  const { data, error } = await sb.from(tab).select('*').eq('id', id).single();
+  if (error || !data) { alert('글을 불러오지 못했어요.'); return; }
+  editingId[tab] = id;
+  const map = {
+    notices:    {title:'ntitle', content:'ncontent'},
+    stories:    {title:'stitle', content:'scontent'},
+    activities: {title:'atitle', content:'acontent'}
+  };
+  document.getElementById(map[tab].title).value = data.title || '';
+  document.getElementById(map[tab].content).value = data.content || '';
+  if (tab === 'activities' && data.activity_date) document.getElementById('adate').value = data.activity_date;
+  const btnMap = {notices:'공지 수정 저장', stories:'이야기 수정 저장', activities:'찰칵기록 수정 저장'};
+  document.querySelector(`#panel-${tab} .btn-primary`).textContent = btnMap[tab];
+  document.querySelector(`#panel-${tab} .write-form`).scrollIntoView({behavior:'smooth'});
+}
+
+async function deletePost(tab, id) {
+  if (!confirm('정말 삭제할까요? 이 작업은 되돌릴 수 없어요.')) return;
+  const { error } = await sb.from(tab).delete().eq('id', id);
+  if (error) { alert('삭제 실패: '+error.message); return; }
+  // 관련 댓글도 삭제
+  await sb.from('comments').delete().eq('board_type', tab).eq('post_id', id);
+  showMsg(tab, '🗑️ 삭제되었어요.', true);
+  loadList(tab);
+}
+
+function clearForm(prefix) {
+  const els = {
+    n: ['ntitle','ncontent'],
+    s: ['stitle','scontent'],
+    a: ['atitle','acontent','adate']
+  };
+  (els[prefix]||[]).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const tabMap = {n:'notices', s:'stories', a:'activities'};
+  if (tabMap[prefix]) editingId[tabMap[prefix]] = null;
+}
+
+function showMsg(tab, text, ok) {
+  const el = document.getElementById('msg-'+tab);
+  el.textContent = text;
+  el.className = 'msg '+(ok?'ok':'err');
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escJs(s) {
+  return String(s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
+}
+
+// 타임라인
+let editingTimelineId = null;
+
+async function loadTimeline() {
+  const listEl = document.getElementById('tlist');
+  const countEl = document.getElementById('tcount');
+  const { data, error } = await sb.from('timeline').select('*').order('year', {ascending:false}).order('month', {ascending:false});
+  if (!data || data.length === 0) {
+    listEl.innerHTML = '<div class="admin-empty">등록된 연혁이 없어요</div>';
+    countEl.textContent = '0건';
+    return;
+  }
+  countEl.textContent = data.length+'건';
+  listEl.innerHTML = data.map(t => `
+    <div class="admin-post-item">
+      <span class="apost-title"><strong>${escHtml(t.year)}${t.month ? '.'+escHtml(t.month) : ''}</strong> — ${escHtml(t.title)}</span>
+      <div class="apost-actions">
+        <button class="btn-edit" onclick="editTimeline(${t.id})">수정</button>
+        <button class="btn-del" onclick="deleteTimeline(${t.id})">삭제</button>
+      </div>
+    </div>`).join('');
+}
+
+async function saveTimeline() {
+  const year = document.getElementById('tyear').value.trim();
+  const month = document.getElementById('tmonth').value.trim();
+  const title = document.getElementById('ttitle').value.trim();
+  const content = document.getElementById('tcontent').value.trim();
+  if (!year) { showMsg('timeline', '연도를 입력해주세요.', false); return; }
+  if (!title) { showMsg('timeline', '제목을 입력해주세요.', false); return; }
+  const payload = {year, month: month||null, title, content: content||null};
+  let error;
+  if (editingTimelineId) {
+    ({ error } = await sb.from('timeline').update(payload).eq('id', editingTimelineId));
+    if (!error) { showMsg('timeline', '✅ 수정되었어요!', true); editingTimelineId = null; }
+  } else {
+    ({ error } = await sb.from('timeline').insert(payload));
+    if (!error) showMsg('timeline', '✅ 등록되었어요!', true);
+  }
+  if (error) { showMsg('timeline', '오류: '+error.message, false); return; }
+  clearTimeline();
+  document.getElementById('tbtn').textContent = '연혁 등록';
+  loadTimeline();
+}
+
+async function editTimeline(id) {
+  const { data, error } = await sb.from('timeline').select('*').eq('id', id).single();
+  if (error || !data) { alert('불러오지 못했어요.'); return; }
+  editingTimelineId = id;
+  document.getElementById('tyear').value = data.year || '';
+  document.getElementById('tmonth').value = data.month || '';
+  document.getElementById('ttitle').value = data.title || '';
+  document.getElementById('tcontent').value = data.content || '';
+  document.getElementById('tbtn').textContent = '연혁 수정 저장';
+  document.querySelector('#panel-timeline .write-form').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteTimeline(id) {
+  if (!confirm('정말 삭제할까요?')) return;
+  const { error } = await sb.from('timeline').delete().eq('id', id);
+  if (error) { alert('삭제 실패: '+error.message); return; }
+  showMsg('timeline', '🗑️ 삭제되었어요.', true);
+  loadTimeline();
+}
+
+function clearTimeline() {
+  ['tyear','tmonth','ttitle','tcontent'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  editingTimelineId = null;
+}
+</script>
+</body>
+</html>

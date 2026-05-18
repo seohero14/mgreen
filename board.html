@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>소식과 이야기 — 마음정원 피어나는 뜰</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;700&family=Noto+Sans+KR:wght@300;400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --gd:#2a4a2a;--gm:#4a7c4a;--gl:#a8c8a8;--gp:#e8f4e8;
+  --gold:#c8960a;--goldf:#f0e8c8;--cream:#f7f5f0;
+  --td:#1a1a1a;--tm:#444;--tl:#777;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--td);overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(247,245,240,0.97);backdrop-filter:blur(10px);border-bottom:1.5px solid rgba(197,185,138,.3);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;}
+.nl{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nl svg{width:34px;height:34px;}
+.nl span{font-family:'Noto Serif KR',serif;font-size:14px;color:var(--gd);font-weight:500;letter-spacing:.05em;}
+.nm{display:flex;gap:28px;list-style:none;}
+.nm a{font-size:13px;color:var(--tm);text-decoration:none;letter-spacing:.04em;transition:color .2s;}
+.nm a:hover{color:var(--gd);}
+.nav-blog{background:var(--gd);color:#fff;padding:8px 18px;border-radius:20px;text-decoration:none;font-size:13px;letter-spacing:.05em;transition:background .2s;}
+.nav-blog:hover{background:var(--gm);}
+
+/* HERO */
+.page-hero{padding:100px 48px 48px;text-align:center;background:linear-gradient(180deg,#fff 0%,var(--cream) 100%);}
+.ph-tag{font-size:11px;letter-spacing:.22em;color:var(--gold);font-weight:500;margin-bottom:12px;}
+.ph-title{font-family:'Noto Serif KR',serif;font-size:32px;color:var(--gd);margin-bottom:10px;font-weight:400;}
+.ph-sub{font-size:13px;color:var(--tl);letter-spacing:.06em;}
+
+/* TAB */
+.tab-wrap{position:sticky;top:62px;z-index:50;background:rgba(247,245,240,0.97);backdrop-filter:blur(10px);border-bottom:1.5px solid rgba(197,185,138,.2);}
+.tabs{display:flex;max-width:900px;margin:0 auto;padding:0 48px;}
+.tab-btn{flex:1;padding:16px 12px;background:none;border:none;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:var(--tl);cursor:pointer;letter-spacing:.06em;border-bottom:2.5px solid transparent;transition:all .2s;margin-bottom:-1.5px;}
+.tab-btn.active{color:var(--gd);border-bottom-color:var(--gd);font-weight:500;}
+.tab-btn:hover{color:var(--gd);}
+
+/* MAIN */
+.main-wrap{max-width:900px;margin:0 auto;padding:48px 48px 80px;}
+
+/* 게시판 패널 */
+.board-panel{display:none;}
+.board-panel.active{display:block;animation:fu .35s ease both;}
+@keyframes fu{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* 목록 */
+.post-list{background:#fff;border-radius:16px;border:1px solid rgba(42,74,42,.08);overflow:hidden;}
+.post-item{display:flex;align-items:center;gap:16px;padding:20px 28px;border-bottom:1px solid rgba(42,74,42,.06);text-decoration:none;color:inherit;transition:background .15s;cursor:pointer;}
+.post-item:last-child{border-bottom:none;}
+.post-item:hover{background:var(--gp);}
+.post-badge{font-size:10px;padding:3px 9px;border-radius:8px;letter-spacing:.06em;white-space:nowrap;flex-shrink:0;}
+.post-badge.notice{background:var(--gd);color:#fff;}
+.post-badge.story{background:var(--gm);color:#fff;}
+.post-badge.activity{background:var(--gold);color:#fff;}
+.post-title{flex:1;font-size:14px;color:var(--td);line-height:1.6;}
+.post-date{font-size:11px;color:var(--tl);white-space:nowrap;flex-shrink:0;}
+.post-empty{text-align:center;padding:60px 20px;color:var(--tl);font-size:13px;line-height:2.4;letter-spacing:.05em;}
+
+/* 상세 이미지 */
+.detail-img{width:100%;max-height:400px;object-fit:cover;border-radius:10px;margin-bottom:24px;pointer-events:none;user-select:none;-webkit-user-select:none;}
+
+/* 상세 */
+.post-detail{display:none;}
+.post-detail.open{display:block;animation:fu .3s ease both;}
+.detail-back{background:none;border:1.5px solid rgba(42,74,42,.25);color:var(--gd);padding:8px 20px;border-radius:20px;font-size:13px;cursor:pointer;letter-spacing:.04em;margin-bottom:28px;transition:all .2s;font-family:'Noto Sans KR',sans-serif;}
+.detail-back:hover{background:var(--gp);}
+.detail-box{background:#fff;border-radius:16px;border:1px solid rgba(42,74,42,.08);padding:40px 44px;}
+.detail-meta{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.detail-date{font-size:12px;color:var(--tl);}
+.detail-title{font-family:'Noto Serif KR',serif;font-size:24px;color:var(--gd);font-weight:500;margin-bottom:24px;line-height:1.6;}
+.detail-divider{width:100%;height:1px;background:rgba(42,74,42,.1);margin-bottom:28px;}
+.detail-content{font-size:14px;color:var(--tm);line-height:2.3;white-space:pre-wrap;word-break:break-word;}
+.detail-activity-date{margin-top:20px;padding:12px 18px;background:var(--goldf);border-radius:10px;font-size:13px;color:var(--tm);border:1px solid rgba(200,150,10,.15);}
+
+.detail-doc{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:12px 20px;background:var(--goldf);border:1.5px solid rgba(200,150,10,.2);border-radius:10px;text-decoration:none;color:var(--gd);font-size:13px;transition:all .2s;}
+.detail-doc:hover{background:var(--gold);color:#fff;}
+
+/* 댓글 */
+.comments-wrap{margin-top:32px;}
+.comments-title{font-size:14px;font-weight:500;color:var(--gd);margin-bottom:16px;letter-spacing:.04em;}
+.comment-form{background:var(--gp);border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid rgba(42,74,42,.1);}
+.comment-form-row{display:flex;gap:10px;margin-bottom:10px;}
+.comment-input{flex:1;padding:10px 14px;border:1.5px solid rgba(42,74,42,.15);border-radius:8px;font-size:13px;font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--td);outline:none;transition:border .2s;}
+.comment-input:focus{border-color:var(--gm);}
+.comment-textarea{width:100%;padding:12px 14px;border:1.5px solid rgba(42,74,42,.15);border-radius:8px;font-size:13px;font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--td);resize:vertical;min-height:80px;outline:none;transition:border .2s;margin-bottom:10px;}
+.comment-textarea:focus{border-color:var(--gm);}
+.comment-submit{background:var(--gd);color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:13px;cursor:pointer;letter-spacing:.04em;font-family:'Noto Sans KR',sans-serif;transition:background .2s;}
+.comment-submit:hover{background:var(--gm);}
+.comment-item{padding:16px 0;border-bottom:1px solid rgba(42,74,42,.06);}
+.comment-item:last-child{border-bottom:none;}
+.comment-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.comment-nick{font-size:13px;font-weight:500;color:var(--gd);}
+.comment-time{font-size:11px;color:var(--tl);}
+.comment-del{margin-left:auto;background:none;border:1px solid rgba(0,0,0,.12);color:var(--tl);padding:3px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.comment-del:hover{border-color:var(--gd);color:var(--gd);}
+.comment-text{font-size:13px;color:var(--tm);line-height:1.9;}
+.comment-none{font-size:13px;color:var(--tl);text-align:center;padding:20px 0;letter-spacing:.04em;}
+
+/* 로딩 */
+.loading{text-align:center;padding:48px;color:var(--tl);font-size:13px;letter-spacing:.06em;}
+
+/* footer */
+footer{background:#111d11;padding:26px 48px;text-align:center;}
+footer p{font-size:11px;color:rgba(255,255,255,.28);letter-spacing:.06em;line-height:2.2;}
+
+@media(max-width:768px){
+  nav{padding:0 20px;}
+  .nm{display:none;}
+  .page-hero{padding:90px 20px 36px;}
+  .tabs{padding:0 12px;}
+  .main-wrap{padding:32px 16px 60px;}
+  .post-item{padding:16px 18px;}
+  .detail-box{padding:24px 20px;}
+  .detail-title{font-size:20px;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nl" href="index.html">
+    <svg viewBox="0 0 90 90" fill="none">
+      <path d="M55 15 C30 15 18 32 18 52 C18 70 32 80 52 78 C35 72 26 58 26 45 C26 28 38 18 55 15Z" stroke="#2a4a2a" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="48" y1="78" x2="48" y2="58" stroke="#2a4a2a" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M48 70 C42 65 36 67 34 72 C40 72 45 71 48 70Z" fill="#2a4a2a"/>
+      <path d="M48 65 C54 60 60 62 62 67 C56 67 51 66 48 65Z" fill="#2a4a2a"/>
+      <circle cx="48" cy="46" r="12" fill="#f0c020" opacity="0.9"/>
+      <circle cx="48" cy="46" r="6" fill="#e8a800"/>
+    </svg>
+    <span>마음정원 피어나는 뜰</span>
+  </a>
+  <ul class="nm">
+    <li><a href="index.html#about">소개</a></li>
+    <li><a href="index.html#boards">소식</a></li>
+    <li><a href="index.html#contact">연락처</a></li>
+  </ul>
+  <a class="nav-blog" href="https://blog.naver.com/janakkana2025" target="_blank">블로그 바로가기</a>
+</nav>
+
+<div class="page-hero">
+  <p class="ph-tag">NOTICE &amp; STORY</p>
+  <h1 class="ph-title">소식과 이야기</h1>
+  <p class="ph-sub">마음정원의 따뜻한 소식을 전합니다</p>
+</div>
+
+<div class="tab-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('notices')">공지사항</button>
+    <button class="tab-btn" onclick="switchTab('stories')">피어나는 이야기 🌱</button>
+    <button class="tab-btn" onclick="switchTab('activities')">찰칵기록 📸</button>
+  </div>
+</div>
+
+<div class="main-wrap">
+
+  <!-- 공지사항 -->
+  <div class="board-panel active" id="panel-notices">
+    <div id="list-notices"></div>
+    <div class="post-detail" id="detail-notices"></div>
+  </div>
+
+  <!-- 피어나는 이야기 -->
+  <div class="board-panel" id="panel-stories">
+    <div id="list-stories"></div>
+    <div class="post-detail" id="detail-stories"></div>
+  </div>
+
+  <!-- 활동기록 -->
+  <div class="board-panel" id="panel-activities">
+    <div id="list-activities"></div>
+    <div class="post-detail" id="detail-activities"></div>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 마음정원 피어나는 뜰 · 마음정원사 초록달 (草月)<br>" 모든 씨앗은 이미 온전합니다 "</p>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://rdirsepiikqqdwdwxdpt.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_GIdU1vgBGxfhJh9GIm3-NA_wggSHDQn';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const BOARD_CONFIG = {
+  notices:    { table:'notices',    label:'공지',    badgeClass:'notice',   hasDate:false },
+  stories:    { table:'stories',    label:'이야기',  badgeClass:'story',    hasDate:false },
+  activities: { table:'activities', label:'활동',    badgeClass:'activity', hasDate:true  }
+};
+
+let currentTab = 'notices';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['notices','stories','activities'][i] === tab);
+  });
+  document.querySelectorAll('.board-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  loadList(tab);
+}
+
+async function loadList(tab) {
+  const cfg = BOARD_CONFIG[tab];
+  const listEl = document.getElementById('list-'+tab);
+  const detailEl = document.getElementById('detail-'+tab);
+  listEl.innerHTML = '<div class="loading">🌿 불러오는 중...</div>';
+  detailEl.classList.remove('open');
+  detailEl.style.display = 'none';
+  listEl.style.display = 'block';
+
+  const { data, error } = await sb.from(cfg.table).select('*').order('created_at', {ascending:false});
+  if (error) { listEl.innerHTML = '<div class="post-empty">오류가 발생했어요. 잠시 후 다시 시도해주세요.</div>'; return; }
+  if (!data || data.length === 0) {
+    listEl.innerHTML = `<div class="post-list"><div class="post-empty">아직 등록된 글이 없어요 🌱<br>곧 피어날 이야기들이 기다리고 있어요</div></div>`;
+    return;
+  }
+  listEl.innerHTML = `<div class="post-list">${data.map(p => `
+    <div class="post-item" onclick="openPost('${tab}', ${p.id})">
+      <span class="post-badge ${cfg.badgeClass}">${cfg.label}</span>
+      <span class="post-title">${escHtml(p.title)}</span>
+      <span class="post-date">${fmtDate(p.created_at)}</span>
+    </div>`).join('')}</div>`;
+}
+
+async function openPost(tab, id) {
+  const cfg = BOARD_CONFIG[tab];
+  const listEl = document.getElementById('list-'+tab);
+  const detailEl = document.getElementById('detail-'+tab);
+  listEl.style.display = 'none';
+  detailEl.style.display = 'block';
+  detailEl.classList.add('open');
+  detailEl.innerHTML = '<div class="loading">🌿 불러오는 중...</div>';
+
+  const { data, error } = await sb.from(cfg.table).select('*').eq('id', id).single();
+  if (error || !data) { detailEl.innerHTML = '<div class="loading">글을 불러오지 못했어요.</div>'; return; }
+
+  let imgHtml = '';
+  if (data.image_urls && data.image_urls.length > 0) {
+    imgHtml = `<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">${data.image_urls.map(url=>`<img src="${url}" style="max-width:100%;border-radius:10px;" alt="첨부 이미지" oncontextmenu="return false;" draggable="false">`).join('')}</div>`;
+  } else if (data.image_url) {
+    imgHtml = `<img src="${data.image_url}" class="detail-img" alt="첨부 이미지" oncontextmenu="return false;" draggable="false">`;
+  }
+  let docHtml = '';
+  if (data.doc_urls && data.doc_urls.length > 0) {
+    docHtml = data.doc_urls.map((url,i)=>`<a href="${url}" class="detail-doc" target="_blank">📎 ${escHtml(data.doc_names[i])} 다운로드</a>`).join('');
+  } else if (data.doc_url && data.doc_name) {
+    docHtml = `<a href="${data.doc_url}" class="detail-doc" target="_blank">📎 ${escHtml(data.doc_name)} 다운로드</a>`;
+  }
+  let extraHtml = '';
+  if (cfg.hasDate && data.activity_date) {
+    extraHtml = `<div class="detail-activity-date">📅 활동일: ${data.activity_date}</div>`;
+  }
+
+  detailEl.innerHTML = `
+    <button class="detail-back" onclick="closePost('${tab}')">← 목록으로</button>
+    <div class="detail-box">
+      <div class="detail-meta">
+        <span class="post-badge ${cfg.badgeClass}">${cfg.label}</span>
+        <span class="detail-date">${fmtDate(data.created_at)}</span>
+      </div>
+      <h2 class="detail-title">${escHtml(data.title)}</h2>
+      <div class="detail-divider"></div>
+      ${imgHtml}
+      <div class="detail-content">${escHtml(data.content)}</div>
+      ${docHtml}
+      ${extraHtml}
+    </div>
+    <div class="comments-wrap">
+      <p class="comments-title">💬 댓글</p>
+      <div class="comment-form">
+        <div class="comment-form-row">
+          <input class="comment-input" id="cnick-${id}" placeholder="닉네임" maxlength="20">
+          <input class="comment-input" id="cpwd-${id}" type="password" placeholder="비밀번호 (삭제 시 필요)" maxlength="20">
+        </div>
+        <textarea class="comment-textarea" id="ctxt-${id}" placeholder="따뜻한 댓글을 남겨주세요 🌿"></textarea>
+        <button class="comment-submit" onclick="submitComment('${tab}', ${id})">댓글 달기</button>
+      </div>
+      <div id="clist-${id}"><div class="comment-none">댓글을 불러오는 중...</div></div>
+    </div>`;
+
+  loadComments(tab, id);
+  detailEl.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function closePost(tab) {
+  const listEl = document.getElementById('list-'+tab);
+  const detailEl = document.getElementById('detail-'+tab);
+  detailEl.classList.remove('open');
+  detailEl.style.display = 'none';
+  listEl.style.display = 'block';
+}
+
+async function loadComments(tab, postId) {
+  const cfg = BOARD_CONFIG[tab];
+  const el = document.getElementById('clist-'+postId);
+  const { data, error } = await sb.from('comments').select('*')
+    .eq('board_type', cfg.table).eq('post_id', postId).order('created_at', {ascending:true});
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div class="comment-none">아직 댓글이 없어요. 첫 댓글을 남겨보세요 🌱</div>';
+    return;
+  }
+  el.innerHTML = data.map(c => `
+    <div class="comment-item" id="ci-${c.id}">
+      <div class="comment-header">
+        <span class="comment-nick">🌿 ${escHtml(c.nickname)}</span>
+        <span class="comment-time">${fmtDate(c.created_at)}</span>
+        <button class="comment-del" onclick="deleteComment(${c.id}, '${tab}', ${postId})">삭제</button>
+      </div>
+      <div class="comment-text">${escHtml(c.content)}</div>
+    </div>`).join('');
+}
+
+async function submitComment(tab, postId) {
+  const cfg = BOARD_CONFIG[tab];
+  const nick = document.getElementById('cnick-'+postId).value.trim();
+  const pwd  = document.getElementById('cpwd-'+postId).value.trim();
+  const txt  = document.getElementById('ctxt-'+postId).value.trim();
+  if (!nick) { alert('닉네임을 입력해주세요.'); return; }
+  if (!pwd)  { alert('비밀번호를 입력해주세요.'); return; }
+  if (!txt)  { alert('댓글 내용을 입력해주세요.'); return; }
+  const { error } = await sb.from('comments').insert({
+    board_type: cfg.table, post_id: postId,
+    nickname: nick, password: pwd, content: txt
+  });
+  if (error) { alert('댓글 등록에 실패했어요.'); return; }
+  document.getElementById('cnick-'+postId).value = '';
+  document.getElementById('cpwd-'+postId).value = '';
+  document.getElementById('ctxt-'+postId).value = '';
+  loadComments(tab, postId);
+}
+
+async function deleteComment(commentId, tab, postId) {
+  const pwd = prompt('댓글 삭제를 위해 비밀번호를 입력해주세요:');
+  if (!pwd) return;
+  const { data } = await sb.from('comments').select('password').eq('id', commentId).single();
+  if (!data || data.password !== pwd) { alert('비밀번호가 일치하지 않아요.'); return; }
+  await sb.from('comments').delete().eq('id', commentId);
+  loadComments(tab, postId);
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// 초기 로드
+loadList('notices');
+</script>
+</body>
+</html>
