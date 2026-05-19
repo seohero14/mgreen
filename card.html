@@ -2,22 +2,31 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="color-scheme" content="light only">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light only">
 <title>마음정원사 초록달 | 전자명함</title>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  :root { color-scheme: light only; }
+  :root { color-scheme: light; }
   @media (prefers-color-scheme: dark) {
-    html, body, .bg-wrap { background: #f0ebe0 !important; color: #3a3028 !important; }
-    .card { background: #fffcf5 !important; }
-    .contact-row { background: #faf6ee !important; color: #3a3028 !important; }
+    * { color-scheme: light !important; }
+    html, body { background: #f0ebe0 !important; background-color: #f0ebe0 !important; color: #3a3028 !important; }
+    .bg-wrap { background: linear-gradient(160deg, #faf6ee 0%, #f3ece0 50%, #ede4d3 100%) !important; color: #3a3028 !important; }
+    .card { background: #fffcf5 !important; color: #3a3028 !important; }
+    .card-body { background: #fffcf5 !important; }
+    .card-footer { background: #fffcf5 !important; }
+    .contact-row { background: #faf6ee !important; color: #3a3028 !important; border-color: #e0d5c5 !important; }
     .contact-row .c-value { color: #4a3a2e !important; }
     .contact-row .c-label { color: #9a8a7a !important; }
     .link-btn.cream { background: #f0e8d8 !important; color: #5a4a3a !important; }
+    .tagline { background: #fffcf5 !important; }
     .tagline p { color: #6b5b4e !important; }
     .card-footer p { color: #b0a090 !important; }
+    .membership-intro { background: #d4ebd6 !important; }
+    .benefit-card { background: #faf8f2 !important; }
+    .page-footer p { color: #a09080 !important; }
   }
   html, body {
     height:100%;
