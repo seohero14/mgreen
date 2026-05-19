@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" style="color-scheme: light only !important; background:#f0ebe0 !important;">
 <head>
 <meta charset="UTF-8">
 <meta name="color-scheme" content="light only">
@@ -9,6 +9,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
+  html { color-scheme: light only !important; }
+  :root { color-scheme: light only !important; }
+  @media (prefers-color-scheme: dark) {
+    html { background: #f0ebe0 !important; filter: none !important; }
+    body { background: #f0ebe0 !important; color: #3a3028 !important; }
+    * { background-color: revert !important; color: revert !important; }
+    .bg-wrap { background: linear-gradient(160deg, #faf6ee 0%, #f3ece0 50%, #ede4d3 100%) !important; }
+    .card { background: #fffcf5 !important; }
+    .card-header { background: linear-gradient(135deg, #4a7a4f 0%, #5a8a5f 50%, #7aaa7f 100%) !important; }
+    .card-header .name { color: #fff !important; }
+    .card-header .brand { color: rgba(255,255,255,0.75) !important; }
+    .card-header .title { color: rgba(255,255,255,0.82) !important; }
+    .tagline p { color: #6b5b4e !important; }
+    .contact-row { background: #faf6ee !important; }
+    .contact-row .c-value { color: #4a3a2e !important; }
+    .contact-row .c-label { color: #9a8a7a !important; }
+    .link-btn.cream { background: #f0e8d8 !important; color: #5a4a3a !important; }
+    .link-btn.green { background: linear-gradient(135deg, #4a7a4f, #6a9e6f) !important; color: white !important; }
+    .brochure-btn { background: linear-gradient(135deg, #5a8a5f, #8ab88e) !important; color: white !important; }
+    .card-footer p { color: #b0a090 !important; }
+    .page-footer p { color: #a09080 !important; }
+  }
   :root { color-scheme: light; }
   @media (prefers-color-scheme: dark) {
     * { color-scheme: light !important; }
@@ -315,7 +337,7 @@
   }
 </style>
 </head>
-<body>
+<body style="background:#f0ebe0 !important; color:#3a3028 !important;">
 <div class="bg-wrap">
 
   <!-- 배경 장식 -->
