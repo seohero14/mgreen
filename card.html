@@ -1,41 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<script>
-// 다크모드 완전 강제 차단
-(function() {
-  var style = document.createElement('style');
-  style.innerHTML = [
-    'html { background: #f0ebe0 !important; color: #3a3028 !important; }',
-    'body { background: #f0ebe0 !important; color: #3a3028 !important; }',
-    '.bg-wrap { background: linear-gradient(160deg, #faf6ee 0%, #f3ece0 50%, #ede4d3 100%) !important; }',
-    '.card { background: #fffcf5 !important; color: #3a3028 !important; }',
-    '.card-body { background: #fffcf5 !important; }',
-    '.card-footer { background: #fffcf5 !important; border-top: 1px dashed #e0d5c5 !important; }',
-    '.tagline p { color: #6b5b4e !important; }',
-    '.contact-row { background: #faf6ee !important; border: 1px solid #ede4d3 !important; }',
-    '.contact-row .c-value { color: #4a3a2e !important; }',
-    '.contact-row .c-label { color: #9a8a7a !important; }',
-    '.link-btn.cream { background: #f0e8d8 !important; color: #5a4a3a !important; }',
-    '.link-btn.green { background: linear-gradient(135deg, #4a7a4f, #6a9e6f) !important; color: #fff !important; }',
-    '.brochure-btn { background: linear-gradient(135deg, #5a8a5f, #8ab88e) !important; color: #fff !important; }',
-    '.card-footer p { color: #b0a090 !important; }',
-    '.page-footer p { color: #a09080 !important; }',
-    '.quote-mark { color: #c8dfc8 !important; }',
-    '.tagline { border-bottom: 1px dashed #e0d5c5 !important; }',
-  ].join('\n');
-  document.head.appendChild(style);
-  
-  // body 배경색 직접 설정
-  document.addEventListener('DOMContentLoaded', function() {
-    document.documentElement.style.setProperty('background-color', '#f0ebe0', 'important');
-    document.body.style.setProperty('background-color', '#f0ebe0', 'important');
-    var bgWrap = document.querySelector('.bg-wrap');
-    if (bgWrap) bgWrap.style.setProperty('background', 'linear-gradient(160deg, #faf6ee 0%, #f3ece0 50%, #ede4d3 100%)', 'important');
-  });
-})();
-</script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light only">
@@ -45,7 +10,11 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   :root { color-scheme: light only; }
   @media (prefers-color-scheme: dark) {
-    html, body, .bg-wrap { background: #f0ebe0 !important; color: #3a3028 !important; }
+    html { background-color: #f0ebe0 !important; }
+    body { background-color: #f0ebe0 !important; }
+    .bg-wrap { background-color: #f0ebe0 !important; background-image: none !important; }
+    html, body, .bg-wrap {
+    background-color: #f0ebe0 !important; background: #f0ebe0 !important; color: #3a3028 !important; }
     .card { background: #fffcf5 !important; }
     .contact-row { background: #faf6ee !important; color: #3a3028 !important; }
     .contact-row .c-value { color: #4a3a2e !important; }
@@ -54,7 +23,8 @@
     .tagline p { color: #6b5b4e !important; }
     .card-footer p { color: #b0a090 !important; }
   }
-  html, body {
+  html { background-color: #f0ebe0 !important; }
+  body {
     height:100%;
     font-family: 'Nanum Gothic', sans-serif;
     background: #f0ebe0 !important;
@@ -63,6 +33,7 @@
 
   /* ── 배경 ── */
   .bg-wrap {
+    background-color: #f0ebe0 !important;
     min-height: 100vh;
     background: linear-gradient(160deg, #faf6ee 0%, #f3ece0 50%, #ede4d3 100%) !important;
     display: flex;
