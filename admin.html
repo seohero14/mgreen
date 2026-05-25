@@ -288,11 +288,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
         <div class="form-row" style="display:flex;gap:12px;">
           <div style="flex:1;">
             <label class="form-label">연도</label>
-            <input class="form-input" id="tyear" placeholder="예: 2024">
+            <input class="form-input" id="tyear" placeholder="예: 2026" type="number">
           </div>
           <div style="flex:1;">
             <label class="form-label">월 (선택)</label>
-            <input class="form-input" id="tmonth" placeholder="예: 3">
+            <input class="form-input" id="tmonth" placeholder="예: 5" type="number" min="1" max="12">
+          </div>
+          <div style="flex:1;">
+            <label class="form-label">일 (선택)</label>
+            <input class="form-input" id="tday" placeholder="예: 14" type="number" min="1" max="31">
           </div>
         </div>
         <div class="form-row">
@@ -598,7 +602,7 @@ let editingTimelineId = null;
 async function loadTimeline() {
   const listEl = document.getElementById('tlist');
   const countEl = document.getElementById('tcount');
-  const { data, error } = await sb.from('timeline').select('*').order('year', {ascending:false}).order('month', {ascending:false});
+  const { data, error } = await sb.from('timeline').select('*').order('year', {ascending:false}).order('month', {ascending:false, nullsFirst:false}).order('day', {ascending:false, nullsFirst:false});
   if (!data || data.length === 0) {
     listEl.innerHTML = '<div class="admin-empty">등록된 연혁이 없어요</div>';
     countEl.textContent = '0건';
@@ -607,7 +611,7 @@ async function loadTimeline() {
   countEl.textContent = data.length+'건';
   listEl.innerHTML = data.map(t => `
     <div class="admin-post-item">
-      <span class="apost-title"><strong>${escHtml(t.year)}${t.month ? '.'+escHtml(t.month) : ''}</strong> — ${escHtml(t.title)}</span>
+      <span class="apost-title"><strong>${escHtml(String(t.year))}${t.month ? '년 '+escHtml(String(t.month))+'월' : '년'}${t.day ? ' '+escHtml(String(t.day))+'일' : ''}</strong> — ${escHtml(t.title)}</span>
       <div class="apost-actions">
         <button class="btn-edit" onclick="editTimeline(${t.id})">수정</button>
         <button class="btn-del" onclick="deleteTimeline(${t.id})">삭제</button>
@@ -616,13 +620,14 @@ async function loadTimeline() {
 }
 
 async function saveTimeline() {
-  const year = document.getElementById('tyear').value.trim();
-  const month = document.getElementById('tmonth').value.trim();
+  const year = parseInt(document.getElementById('tyear').value.trim());
+  const month = parseInt(document.getElementById('tmonth').value.trim()) || null;
+  const day = parseInt(document.getElementById('tday').value.trim()) || null;
   const title = document.getElementById('ttitle').value.trim();
   const content = document.getElementById('tcontent').value.trim();
   if (!year) { showMsg('timeline', '연도를 입력해주세요.', false); return; }
   if (!title) { showMsg('timeline', '제목을 입력해주세요.', false); return; }
-  const payload = {year, month: month||null, title, content: content||null};
+  const payload = {year, month, day, title, content: content||null};
   let error;
   if (editingTimelineId) {
     ({ error } = await sb.from('timeline').update(payload).eq('id', editingTimelineId));
@@ -643,6 +648,7 @@ async function editTimeline(id) {
   editingTimelineId = id;
   document.getElementById('tyear').value = data.year || '';
   document.getElementById('tmonth').value = data.month || '';
+  document.getElementById('tday').value = data.day || '';
   document.getElementById('ttitle').value = data.title || '';
   document.getElementById('tcontent').value = data.content || '';
   document.getElementById('tbtn').textContent = '연혁 수정 저장';
@@ -658,7 +664,7 @@ async function deleteTimeline(id) {
 }
 
 function clearTimeline() {
-  ['tyear','tmonth','ttitle','tcontent'].forEach(id => {
+  ['tyear','tmonth','tday','ttitle','tcontent'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });

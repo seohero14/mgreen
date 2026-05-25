@@ -401,17 +401,22 @@ const sb = supabase.createClient(
 );
 async function loadTimeline() {
   const el = document.getElementById('tlList');
-  const { data } = await sb.from('timeline').select('*').order('year', {ascending:false}).order('month', {ascending:false});
+  const { data } = await sb.from('timeline').select('*').order('year', {ascending:false}).order('month', {ascending:false, nullsFirst:false}).order('day', {ascending:false, nullsFirst:false});
   if (!data || data.length === 0) {
     el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--tl);font-size:13px;">아직 등록된 연혁이 없어요 🌱</div>';
     return;
   }
-  el.innerHTML = data.map(t => `
+  el.innerHTML = data.map(t => {
+    let dateStr = t.year + '년';
+    if (t.month) dateStr += ' ' + t.month + '월';
+    if (t.day) dateStr += ' ' + t.day + '일';
+    return `
     <div class="tl-item">
-      <p class="tl-year">${t.year}${t.month ? '년 ' + t.month + '월' : '년'}</p>
+      <p class="tl-year">${dateStr}</p>
       <p class="tl-item-title">${t.title}</p>
       ${t.content ? `<p class="tl-item-content">${t.content}</p>` : ''}
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 loadTimeline();
 </script>
